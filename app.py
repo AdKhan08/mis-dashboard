@@ -5,167 +5,241 @@ import plotly.graph_objects as go
 import numpy as np
 from datetime import datetime, timedelta
 
-# --- HEADER ---
-st.markdown(
-    '<div style="background: #ffe600; padding: 0.5rem 0; text-align: left; font-size: 2.5rem; font-weight: bold; color: #111; border-bottom: 2px solid #111;">'
-    'MIS Dashboard</div>',
-    unsafe_allow_html=True
+# Configure page
+st.set_page_config(
+    layout="wide",
+    initial_sidebar_state="collapsed",
+    page_title="Performance Management Dashboard"
 )
 
-# --- PAGE TITLE & BUTTONS ---
-header_col, download_col, share_col = st.columns([6, 1, 1])
-with header_col:
-    st.markdown('<div style="text-align:right; font-size:1.5rem; font-weight:bold; color:#00338D; margin-bottom:1rem;">Main Page</div>', unsafe_allow_html=True)
-with download_col:
-    st.button("Download")
-with share_col:
-    st.button("Share")
-
-# --- FILTERS ---
-filter1, filter2, filter3, filter4, filter5 = st.columns(5)
-with filter1:
-    date_range = st.date_input("Date Range", value=(datetime.now() - timedelta(days=30), datetime.now()))
-with filter2:
-    department = st.selectbox("Department", ["All", "Property Tax", "Trade License", "Complaints", "MCollect", "Fire NOC", "Finance"])
-with filter3:
-    ulb = st.selectbox("ULB", ["All ULBs", "Kothaguru", "Machhliwara", "Boha"])
-with filter4:
-    ddr = st.selectbox("DDR", ["All DDRs", "DDR 1", "DDR 2"])
-with filter5:
-    denomination = st.selectbox("Denomination", ["Cr", "Lac", "Unit"])
-
-st.markdown("---")
-
-# --- KPI CARDS ---
+# Custom CSS
 st.markdown("""
 <style>
-.kpi-card {
-    background: #e3f0fa;
-    border-radius: 1rem;
-    padding: 1.5rem 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    text-align: left;
-}
-.kpi-title { font-size: 1.1rem; color: #00338D; font-weight: bold; }
-.kpi-value { font-size: 2.2rem; color: #222; font-weight: bold; }
-.kpi-sub { font-size: 1rem; color: #666; }
+    .block-container {
+        padding: 1rem 2rem;
+    }
+    .element-container {
+        margin: 0;
+    }
+    .stProgress > div > div > div {
+        height: 10px;
+    }
+    div[data-testid="stHorizontalBlock"] > div {
+        padding: 0 1rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-kpis = [
-    {"title": "Total Collection", "value": "₹4,326.07 Lac", "sub": "Overview"},
-    {"title": "Target Achievement", "value": "0.00 %", "sub": "0% than LY"},
-    {"title": "Total Applications", "value": "1,37,808", "sub": "63.31% than LY"},
-    {"title": "SLA Achievement", "value": "100.00 %", "sub": "0% than LY"},
-]
+# Title and date range
+col1, col2 = st.columns([6,1])
+with col1:
+    st.markdown('<div style="text-align:right; font-size:1.2rem; font-weight:500; color:#333;">Main Dashboard</div>', unsafe_allow_html=True)
+with col2:
+    current_month = datetime.now().strftime("%b %Y")
+    st.markdown(f'<div style="text-align:right; font-size:0.9rem; color:#666;">{current_month}</div>', unsafe_allow_html=True)
 
-kpi_cols = st.columns(4)
-for i, kpi in enumerate(kpis):
-    with kpi_cols[i]:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">{kpi["title"]}</div>'
-                    f'<div class="kpi-value">{kpi["value"]}</div>'
-                    f'<div class="kpi-sub">{kpi["sub"]}</div></div>', unsafe_allow_html=True)
+# Main content
+left_col, center_col, right_col = st.columns([1,2,1], gap="large")
 
-st.markdown("---")
+# LEFT COLUMN
+with left_col:
+    # Revenue KPI
+    st.markdown(
+        '<div style="background:#f8f9fa; border-radius:8px; padding:1.2rem; text-align:center; border:1px solid #eee;">'
+        '<div style="font-size:2.5rem; font-weight:bold; color:#2196F3;">₹243.5Cr</div>'
+        '<div style="font-size:0.9rem; color:#666;">Total Revenue (YTD)</div>'
+        '<div style="font-size:0.8rem; color:#4CAF50; margin-top:0.5rem;">↑ 12.4% vs Last Year</div>'
+        '</div>', 
+        unsafe_allow_html=True
+    )
+    
+    # Performance Summary
+    st.markdown(
+        '<div style="padding:1rem 0;">'
+        '<div style="font-size:1.2rem; font-weight:bold; margin-bottom:0.5rem;">Performance Highlights</div>'
+        '<div style="font-size:0.9rem; color:#666; line-height:1.4;">'
+        '• Revenue target achievement: 94%<br>'
+        '• Customer satisfaction score: 4.2/5<br>'
+        '• Operational efficiency: 87%<br>'
+        '• Cost optimization: 8.3% savings'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+    
+    # Department Status
+    st.markdown('<div style="font-size:1rem; font-weight:500; margin:0.5rem 0;">Department Status</div>', unsafe_allow_html=True)
+    departments = [
+        ('Sales & Marketing', '#4CAF50', 'On Track'),
+        ('Operations', '#2196F3', 'Needs Attention'),
+        ('Finance', '#FFC107', 'Under Review')
+    ]
+    for dept, color, status in departments:
+        st.markdown(
+            f'<div style="display:flex; align-items:center; margin:0.4rem 0; padding:0.4rem; background:#f8f9fa; border-radius:4px;">'
+            f'<div style="width:8px; height:8px; border-radius:50%; background:{color}; margin-right:0.5rem;"></div>'
+            f'<div style="font-size:0.9rem; color:#444; flex-grow:1;">{dept}</div>'
+            f'<div style="font-size:0.8rem; color:{color};">{status}</div>'
+            '</div>', 
+            unsafe_allow_html=True
+        )
 
-# --- SUB KPI CARDS ---
-sub_kpis = [
-    {"title": "Property Tax", "value": "₹4,208.68 Lac", "sub": "Total Properties Assessed: 1,20,020", "trend": "68.45% than LY", "color": "#a48be0"},
-    {"title": "Trade License", "value": "₹117.40 Lac", "sub": "Total Applications: 9,444", "trend": "71.54% than LY", "color": "#f7b7a3"},
-    {"title": "Complaints", "value": "8,344", "sub": "SLA Achievement: 100%", "trend": "78.55% than LY", "color": "#8fd19e"},
-    {"title": "MCollect", "value": "₹6,045.30 Lac", "sub": "Total Receipts: 55,606", "trend": "68.52% than LY", "color": "#ffe066"},
-    {"title": "Fire NOC", "value": "₹217.22 Lac", "sub": "Total NOCs: 1,634", "trend": "133.62% than LY", "color": "#a3d2f7"},
-    {"title": "Finance", "value": "Bills: 1,67,340", "sub": "Payments: 94,717", "trend": "-", "color": "#d1b3e0"},
-]
+# CENTER COLUMN
+with center_col:
+    # Revenue Trend
+    months = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"]
+    current_year = [180, 210, 220, 250, 270, 300, 320, 340, 360, 380, 400, 450]
+    last_year = [160, 180, 190, 210, 230, 260, 280, 290, 310, 320, 340, 380]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=months, 
+        y=current_year,
+        name="FY 2023-24",
+        line=dict(color='#2196F3', width=3),
+        fill='tozeroy',
+        fillcolor='rgba(33, 150, 243, 0.1)'
+    ))
+    fig.add_trace(go.Scatter(
+        x=months, 
+        y=last_year,
+        name="FY 2022-23",
+        line=dict(color='#90CAF9', width=2, dash='dot')
+    ))
+    
+    fig.update_layout(
+        height=300,
+        margin=dict(l=0, r=0, t=30, b=0),
+        paper_bgcolor='white',
+        plot_bgcolor='white',
+        title="Monthly Revenue Trend (₹ Crores)",
+        title_x=0,
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor='rgba(0,0,0,0.1)')
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Key Metrics
+    metric_cols = st.columns(4)
+    metrics = [
+        ("Revenue Growth", "12.4%", "#2196F3"),
+        ("Market Share", "23.5%", "#4CAF50"),
+        ("Customer Base", "84.2K", "#FFC107"),
+        ("Profitability", "18.7%", "#F44336")
+    ]
+    
+    for i, (title, value, color) in enumerate(metrics):
+        with metric_cols[i]:
+            fig = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=float(value.strip('%').strip('K')),
+                number={'font': {'size': 24, 'color': '#444'}, 'suffix': value[-1] if value[-1] in ['%', 'K'] else ''},
+                gauge={
+                    'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#444"},
+                    'bar': {'color': color},
+                    'borderwidth': 2,
+                    'bordercolor': "#444"
+                },
+                title={'text': title, 'font': {'size': 12}}
+            ))
+            fig.update_layout(height=150, margin=dict(l=5, r=5, t=25, b=5))
+            st.plotly_chart(fig, use_container_width=True)
+    
+    # Performance by Category
+    categories = ["Product A", "Product B", "Product C", "Product D", "Product E"]
+    values = [450, 380, 320, 280, 220]
+    
+    bar_fig = go.Figure(go.Bar(
+        x=categories,
+        y=values,
+        marker_color='#2196F3',
+        text=values,
+        textposition='outside'
+    ))
+    bar_fig.update_layout(
+        height=180,
+        margin=dict(l=0, r=0, t=30, b=0),
+        title="Revenue by Product Category (₹ Lakhs)",
+        title_x=0,
+        showlegend=False,
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor='rgba(0,0,0,0.1)')
+    )
+    st.plotly_chart(bar_fig, use_container_width=True)
 
-sub_kpi_cols = st.columns(3)
-for i, sub_kpi in enumerate(sub_kpis):
-    with sub_kpi_cols[i % 3]:
-        st.markdown(f'<div class="kpi-card" style="background:{sub_kpi["color"]}"><div class="kpi-title">{sub_kpi["title"]}</div>'
-                    f'<div class="kpi-value">{sub_kpi["value"]}</div>'
-                    f'<div class="kpi-sub">{sub_kpi["sub"]}<br><span style="font-size:0.9rem;color:#444;">{sub_kpi["trend"]}</span></div></div>', unsafe_allow_html=True)
-    if (i+1) % 3 == 0 and i+1 < len(sub_kpis):
-        sub_kpi_cols = st.columns(3)
+# RIGHT COLUMN
+with right_col:
+    # Overall Performance Gauge
+    st.markdown('<div style="font-size:1rem; font-weight:500; margin-bottom:0.5rem;">Overall Performance</div>', unsafe_allow_html=True)
+    gauge = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=87,
+        number={'font': {'size': 28, 'color': '#444'}, 'suffix': '%'},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#444"},
+            'bar': {'color': "#2196F3"},
+            'bgcolor': "white",
+            'borderwidth': 2,
+            'bordercolor': "#444",
+            'steps': [
+                {'range': [0, 60], 'color': '#FFCDD2'},
+                {'range': [60, 80], 'color': '#FFECB3'},
+                {'range': [80, 100], 'color': '#C8E6C9'}
+            ],
+            'threshold': {
+                'line': {'color': "green", 'width': 4},
+                'thickness': 0.75,
+                'value': 90
+            }
+        }
+    ))
+    gauge.update_layout(height=200, margin=dict(l=10, r=10, t=20, b=10))
+    st.plotly_chart(gauge, use_container_width=True)
+    
+    # KPI Achievement
+    st.markdown('<div style="font-size:1rem; font-weight:500; margin:0.5rem 0;">KPI Achievement</div>', unsafe_allow_html=True)
+    kpis = [
+        ("Revenue Target", 0.94),
+        ("Cost Optimization", 0.83),
+        ("Customer Satisfaction", 0.88)
+    ]
+    
+    for label, val in kpis:
+        st.markdown(f'<div style="font-size:0.85rem; color:#666; margin:0.2rem 0;">{label}</div>', unsafe_allow_html=True)
+        st.progress(val)
+    
+    # Critical Alerts
+    st.markdown('<div style="font-size:1rem; font-weight:500; margin:1rem 0 0.5rem;">Critical Alerts</div>', unsafe_allow_html=True)
+    alerts = [
+        ("Revenue gap in Region North", "#F44336", "High"),
+        ("Customer churn rate increased", "#FFC107", "Medium"),
+        ("Inventory optimization needed", "#4CAF50", "Low")
+    ]
+    
+    for alert, color, priority in alerts:
+        st.markdown(
+            f'<div style="display:flex; align-items:center; margin:0.4rem 0; padding:0.4rem; background:#f8f9fa; border-radius:4px;">'
+            f'<div style="width:8px; height:8px; border-radius:50%; background:{color}; margin-right:0.5rem;"></div>'
+            f'<div style="font-size:0.85rem; color:#444; flex-grow:1;">{alert}</div>'
+            f'<div style="font-size:0.75rem; color:{color}; font-weight:500;">{priority}</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
-st.markdown("---")
-
-# --- TOGGLE SWITCHES & INDICATORS ---
-st.markdown("#### Service Toggles & Indicators")
-toggle_col1, toggle_col2 = st.columns([1,3])
-with toggle_col1:
-    st.write("Enable Service 1")
-    st.toggle("Service 1", value=True)
-    st.write("Enable Service 2")
-    st.toggle("Service 2", value=False)
-    st.write("Enable Service 3")
-    st.toggle("Service 3", value=True)
-with toggle_col2:
-    st.write("**Status Indicators**")
-    st.markdown('<div style="display:flex;gap:1rem;">'
-        '<div style="width:20px;height:20px;border-radius:50%;background:#1f77b4;display:inline-block;"></div> Service 1 '
-        '<div style="width:20px;height:20px;border-radius:50%;background:#ff7f0e;display:inline-block;"></div> Service 2 '
-        '<div style="width:20px;height:20px;border-radius:50%;background:#2ca02c;display:inline-block;"></div> Service 3 '
-        '</div>', unsafe_allow_html=True)
-
-st.markdown("---")
-
-# --- HORIZONTAL PROGRESS BARS ---
-st.markdown("#### Performance Bars")
-bar_data = [
-    ("Service A", 0.7),
-    ("Service B", 0.45),
-    ("Service C", 0.85),
-]
-for label, val in bar_data:
-    st.write(f"{label} ({int(val*100)}%)")
-    st.progress(val)
-
-st.markdown("---")
-
-# --- CIRCULAR PROGRESS INDICATORS ---
-st.markdown("#### Circular Progress Indicators")
-circ_col1, circ_col2, circ_col3, circ_col4 = st.columns(4)
-with circ_col1:
-    st.plotly_chart(go.Figure(go.Indicator(mode="gauge+number", value=75, gauge={'axis':{'range':[0,100]},'bar':{'color':'#1f77b4'}}, title={'text':'Scheme 1'})), use_container_width=True)
-with circ_col2:
-    st.plotly_chart(go.Figure(go.Indicator(mode="gauge+number", value=45, gauge={'axis':{'range':[0,100]},'bar':{'color':'#00338D'}}, title={'text':'Scheme 2'})), use_container_width=True)
-with circ_col3:
-    st.plotly_chart(go.Figure(go.Indicator(mode="gauge+number", value=75, gauge={'axis':{'range':[0,100]},'bar':{'color':'#ff7f0e'}}, title={'text':'Scheme 3'})), use_container_width=True)
-with circ_col4:
-    st.plotly_chart(go.Figure(go.Indicator(mode="gauge+number", value=85, gauge={'axis':{'range':[0,100]},'bar':{'color':'#d62728'}}, title={'text':'Scheme 4'})), use_container_width=True)
-
-st.markdown("---")
-
-# --- PLACEHOLDER FOR CHARTS ---
-st.markdown("#### Revenue & Service Overview")
-chart_col1, chart_col2, chart_col3 = st.columns([2,1,1])
-
-with chart_col1:
-    st.plotly_chart(px.line(x=["Apr-2024","May-2024","Jun-2024","Jul-2024","Aug-2024","Sep-2024","Oct-2024","Nov-2024","Dec-2024","Jan-2025","Feb-2025","Mar-2025"],
-                            y=[1000,2000,2500,3000,3500,4000,4200,4300,4400,4600,4800,6000],
-                            labels={"x":"Month","y":"Collections (Lac)"},
-                            title="Total Cumulative Collection (In Lac)"), use_container_width=True)
-with chart_col2:
-    st.plotly_chart(go.Figure(go.Pie(labels=["Cash","Online","Card"], values=[40,35,25], hole=0.6)), use_container_width=True)
-with chart_col3:
-    st.plotly_chart(go.Figure(go.Pie(labels=["Residential","Commercial","Industrial"], values=[60,30,10], hole=0.6)), use_container_width=True)
-
-# --- PROGRESS BAR / GAUGE ---
-gauge = go.Figure(go.Indicator(
-    mode = "gauge+number+delta",
-    value = 75,
-    delta = {'reference': 80},
-    gauge = {'axis': {'range': [0, 100]},
-             'bar': {'color': "#00338D"},
-             'steps' : [
-                 {'range': [0, 50], 'color': "#8fd19e"},
-                 {'range': [50, 80], 'color': "#ffe066"},
-                 {'range': [80, 100], 'color': "#f7b7a3"}
-             ]},
-    title = {'text': "Target Achievement (%)"}
-))
-st.plotly_chart(gauge, use_container_width=True)
-
-# --- FOOTER ---
-st.markdown('<div style="margin-top:2rem; text-align:center; color:#888;">KPMG India | Municipal Corporation MIS Dashboard</div>', unsafe_allow_html=True) 
+# Footer
+st.markdown(
+    '<div style="text-align:center; color:#666; font-size:0.8rem; padding:1rem 0; border-top:1px solid #eee; margin-top:2rem;">'
+    'Performance Management Dashboard | Last Updated: ' + datetime.now().strftime("%d %b %Y, %H:%M") +
+    '</div>', 
+    unsafe_allow_html=True
+) 
